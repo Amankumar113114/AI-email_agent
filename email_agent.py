@@ -33,9 +33,11 @@ client = None
 if AI_PROVIDER == "openai":
     from openai import OpenAI
     OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-    if not OPENAI_API_KEY:
-        raise ValueError("OPENAI_API_KEY not found in environment variables.")
-    client = OpenAI(api_key=OPENAI_API_KEY)
+    if OPENAI_API_KEY:
+        client = OpenAI(api_key=OPENAI_API_KEY)
+    else:
+        print("Warning: OPENAI_API_KEY not found. AI features will use fallback mode.")
+        client = None
 else:
     # Ollama local setup
     import requests
@@ -202,7 +204,7 @@ Respond in this exact JSON format:
 }}"""
 
         try:
-            if AI_PROVIDER == "openai":
+            if AI_PROVIDER == "openai" and client:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],
@@ -210,7 +212,7 @@ Respond in this exact JSON format:
                     response_format={"type": "json_object"}
                 )
                 result = json.loads(response.choices[0].message.content)
-            else:
+            elif AI_PROVIDER == "ollama":
                 # Ollama API
                 response = requests.post(
                     f"{OLLAMA_BASE_URL}/api/generate",
@@ -223,6 +225,9 @@ Respond in this exact JSON format:
                 )
                 response.raise_for_status()
                 result = json.loads(response.json()["response"])
+            else:
+                # Fallback mode - no AI available
+                raise Exception("No AI provider available")
 
             compressed = CompressedContext(
                 summary=result.get("summary", ""),
@@ -338,7 +343,7 @@ Respond in this exact JSON format:
 }}"""
 
         try:
-            if AI_PROVIDER == "openai":
+            if AI_PROVIDER == "openai" and client:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],
@@ -346,7 +351,7 @@ Respond in this exact JSON format:
                     response_format={"type": "json_object"}
                 )
                 result = json.loads(response.choices[0].message.content)
-            else:
+            elif AI_PROVIDER == "ollama":
                 response = requests.post(
                     f"{OLLAMA_BASE_URL}/api/generate",
                     json={
@@ -358,6 +363,8 @@ Respond in this exact JSON format:
                 )
                 response.raise_for_status()
                 result = json.loads(response.json()["response"])
+            else:
+                raise Exception("No AI provider available")
 
             primary = self._parse_category(result.get("primary_category", "Other"))
             secondary = [self._parse_category(c) for c in result.get("secondary_categories", [])]
@@ -491,7 +498,7 @@ Respond in this exact JSON format:
 }}"""
 
         try:
-            if AI_PROVIDER == "openai":
+            if AI_PROVIDER == "openai" and client:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],
@@ -499,7 +506,7 @@ Respond in this exact JSON format:
                     response_format={"type": "json_object"}
                 )
                 result = json.loads(response.choices[0].message.content)
-            else:
+            elif AI_PROVIDER == "ollama":
                 response = requests.post(
                     f"{OLLAMA_BASE_URL}/api/generate",
                     json={
@@ -511,6 +518,8 @@ Respond in this exact JSON format:
                 )
                 response.raise_for_status()
                 result = json.loads(response.json()["response"])
+            else:
+                raise Exception("No AI provider available")
 
             return ReplySuggestion(
                 content=result.get("content", ""),

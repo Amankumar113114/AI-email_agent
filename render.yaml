@@ -12,7 +12,5 @@ services:
         value: openai
       - key: MODEL_NAME
         value: gpt-4o-mini
-      - key: OPENAI_API_KEY
-        sync: false
       - key: FRONTEND_URL
         value: https://amankumar113114.github.io
