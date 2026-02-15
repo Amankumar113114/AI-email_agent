@@ -38,6 +38,18 @@ if AI_PROVIDER == "openai":
     else:
         print("Warning: OPENAI_API_KEY not found. AI features will use fallback mode.")
         client = None
+elif AI_PROVIDER == "groq":
+    from openai import OpenAI
+    GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+    if GROQ_API_KEY:
+        client = OpenAI(
+            api_key=GROQ_API_KEY,
+            base_url="https://api.groq.com/openai/v1"
+        )
+        print(f"Using Groq with model: {MODEL_NAME}")
+    else:
+        print("Warning: GROQ_API_KEY not found. AI features will use fallback mode.")
+        client = None
 else:
     # Ollama local setup
     import requests
@@ -204,7 +216,7 @@ Respond in this exact JSON format:
 }}"""
 
         try:
-            if AI_PROVIDER == "openai" and client:
+            if AI_PROVIDER in ["openai", "groq"] and client:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],
@@ -343,7 +355,7 @@ Respond in this exact JSON format:
 }}"""
 
         try:
-            if AI_PROVIDER == "openai" and client:
+            if AI_PROVIDER in ["openai", "groq"] and client:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],
@@ -498,7 +510,7 @@ Respond in this exact JSON format:
 }}"""
 
         try:
-            if AI_PROVIDER == "openai" and client:
+            if AI_PROVIDER in ["openai", "groq"] and client:
                 response = client.chat.completions.create(
                     model=MODEL_NAME,
                     messages=[{"role": "user", "content": prompt}],

@@ -9,8 +9,10 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: AI_PROVIDER
-        value: openai
+        value: groq
       - key: MODEL_NAME
-        value: gpt-4o-mini
+        value: llama3-8b-8192
+      - key: GROQ_API_KEY
+        sync: false
       - key: FRONTEND_URL
         value: https://amankumar113114.github.io
